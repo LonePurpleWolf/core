@@ -78,7 +78,7 @@ class AirtouchDataUpdateCoordinator(DataUpdateCoordinator):
 
     def __init__(self, hass, airtouch):
         """Initialize global Airtouch data updater."""
-        self._airtouch = airtouch
+        self.airtouch = airtouch
 
         super().__init__(
             hass,

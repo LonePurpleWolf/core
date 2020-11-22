@@ -48,9 +48,9 @@ HA_FAN_SPEED_TO_AT = {value: key for key, value in AT_TO_HA_FAN_SPEED.items()}
 _LOGGER = logging.getLogger(__name__)
 
 
-def _build_entity(coordinator, groupNumber, info, airtouch):
-    _LOGGER.debug("Found device %s", groupNumber)
-    return AirtouchGroup(coordinator, groupNumber, info, airtouch)
+def _build_entity(coordinator, group_number, info, airtouch):
+    _LOGGER.debug("Found device %s", group_number)
+    return AirtouchGroup(coordinator, group_number, info, airtouch)
 
 
 async def async_setup_entry(hass, config_entry, async_add_devices):
@@ -59,7 +59,7 @@ async def async_setup_entry(hass, config_entry, async_add_devices):
     coordinator = hass.data["airtouch4"][config_entry.entry_id]["coordinator"]
 
     all_devices = [
-        _build_entity(coordinator, group["GroupNumber"], info, coordinator._airtouch)
+        _build_entity(coordinator, group["GroupNumber"], info, coordinator.airtouch)
         for group in info["groups"]
     ]
 
@@ -144,10 +144,10 @@ class AirtouchGroup(ClimateEntity, CoordinatorEntity):
     @property
     def hvac_modes(self):
         """Return the list of available operation modes."""
-        airtouchModes = self._airtouch.GetSupportedCoolingModesByGroup(
+        airtouch_modes = self._airtouch.GetSupportedCoolingModesByGroup(
             self._group_number
         )
-        modes = [AT_TO_HA_STATE[mode] for mode in airtouchModes]
+        modes = [AT_TO_HA_STATE[mode] for mode in airtouch_modes]
         modes.extend([HVAC_MODE_OFF])
         return modes
 
@@ -159,10 +159,10 @@ class AirtouchGroup(ClimateEntity, CoordinatorEntity):
     @property
     def fan_modes(self):
         """Return the list of available fan modes."""
-        airtouchFanSpeeds = self._airtouch.GetSupportedFanSpeedsByGroup(
+        airtouch_fan_speeds = self._airtouch.GetSupportedFanSpeedsByGroup(
             self._group_number
         )
-        return [AT_TO_HA_FAN_SPEED[speed] for speed in airtouchFanSpeeds]
+        return [AT_TO_HA_FAN_SPEED[speed] for speed in airtouch_fan_speeds]
 
     async def async_set_temperature(self, **kwargs):
         """Set new target temperatures."""
