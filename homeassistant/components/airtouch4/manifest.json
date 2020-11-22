@@ -1,0 +1,16 @@
+{
+  "domain": "airtouch4",
+  "name": "AirTouch 4",
+  "config_flow": true,
+  "documentation": "https://www.home-assistant.io/integrations/airtouch4",
+  "requirements": [
+    "airtouch4pyapi==0.0.16"
+  ],
+  "ssdp": [],
+  "zeroconf": [],
+  "homekit": {},
+  "dependencies": [],
+  "codeowners": [
+    "@LonePurpleWolf"
+  ]
+}

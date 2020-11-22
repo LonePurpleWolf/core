@@ -235,6 +235,9 @@ aioymaps==1.1.0
 # homeassistant.components.airly
 airly==1.0.0
 
+# homeassistant.components.airtouch4
+airtouch4pyapi==0.0.16
+
 # homeassistant.components.aladdin_connect
 aladdin_connect==0.3
 

@@ -151,6 +151,9 @@ aioymaps==1.1.0
 # homeassistant.components.airly
 airly==1.0.0
 
+# homeassistant.components.airtouch4
+airtouch4pyapi==0.0.16
+
 # homeassistant.components.ambiclimate
 ambiclimate==0.2.1
 
