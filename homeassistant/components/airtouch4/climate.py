@@ -135,7 +135,6 @@ class AirtouchGroup(ClimateEntity, CoordinatorEntity):
     @property
     def hvac_mode(self):
         """Return hvac target hvac state."""
-        # mode = self._unit.mode
         is_on = self._unit.PowerState == "On"
         if not is_on:
             return HVAC_MODE_OFF
