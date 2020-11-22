@@ -90,11 +90,11 @@ class AirtouchDataUpdateCoordinator(DataUpdateCoordinator):
     async def _async_update_data(self):
         """Fetch data from Airtouch."""
         try:
-            self._airtouch.UpdateInfo()
+            self.airtouch.UpdateInfo()
             return {
                 "acs": [
                     {"AcNumber": ac.AcNumber, "IsOn": ac.IsOn}
-                    for ac in self._airtouch.GetAcs()
+                    for ac in self.airtouch.GetAcs()
                 ],
                 "groups": [
                     {
@@ -102,7 +102,7 @@ class AirtouchDataUpdateCoordinator(DataUpdateCoordinator):
                         "GroupName": group.GroupName,
                         "IsOn": group.IsOn,
                     }
-                    for group in self._airtouch.GetGroups()
+                    for group in self.airtouch.GetGroups()
                 ],
             }
         except (OSError, ConnectionRefusedError, TimeoutError) as error:

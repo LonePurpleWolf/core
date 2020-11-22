@@ -20,6 +20,7 @@ async def _validate_connection(hass: core.HomeAssistant, host):
 class AirtouchConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle an Airtouch config flow."""
 
+    DOMAIN = DOMAIN
     VERSION = 1
     CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_POLL
 
