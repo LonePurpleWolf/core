@@ -2,7 +2,6 @@
 import logging
 
 from airtouch4pyapi import AirTouch
-import voluptuous as vol
 
 from homeassistant.components.climate import SCAN_INTERVAL
 from homeassistant.config_entries import ConfigEntry
@@ -12,10 +11,6 @@ from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .const import DOMAIN
-
-CONFIG_SCHEMA = vol.Schema(
-    {DOMAIN: vol.Schema({vol.Required(CONF_HOST): str})}, extra=vol.ALLOW_EXTRA
-)
 
 _LOGGER = logging.getLogger(__name__)
 
