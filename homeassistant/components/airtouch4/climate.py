@@ -43,6 +43,7 @@ AT_TO_HA_FAN_SPEED = {
     "High": FAN_HIGH,
     "Powerful": FAN_FOCUS,
     "Auto": FAN_AUTO,
+    "Turbo": "turbo",
 }
 
 HA_FAN_SPEED_TO_AT = {value: key for key, value in AT_TO_HA_FAN_SPEED.items()}
@@ -178,6 +179,9 @@ class AirtouchGroup(ClimateEntity, CoordinatorEntity):
 
     async def async_set_fan_mode(self, fan_mode):
         """Set new fan mode."""
+        if fan_mode not in HA_FAN_SPEED_TO_AT.keys() or fan_mode not in self.fan_modes:
+            raise ValueError("Fan mode not supported")
+
         _LOGGER.debug("Setting fan mode of %s to %s", self._group_number, fan_mode)
         self._unit = self._airtouch.SetFanSpeedByGroup(
             self._group_number, HA_FAN_SPEED_TO_AT[fan_mode]
@@ -186,6 +190,9 @@ class AirtouchGroup(ClimateEntity, CoordinatorEntity):
 
     async def async_set_hvac_mode(self, hvac_mode):
         """Set new operation mode."""
+        if hvac_mode not in HA_STATE_TO_AT.keys():
+            raise ValueError("HVAC mode not supported")
+
         if hvac_mode == HVAC_MODE_OFF:
             return await self.async_turn_off()
         if self.hvac_mode == HVAC_MODE_OFF:
