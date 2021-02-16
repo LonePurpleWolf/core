@@ -32,6 +32,7 @@ AT_TO_HA_STATE = {
     "Auto": HVAC_MODE_HEAT_COOL,
     "Dry": HVAC_MODE_DRY,
     "Fan": HVAC_MODE_FAN_ONLY,
+    "Off": HVAC_MODE_OFF,
 }
 
 HA_STATE_TO_AT = {value: key for key, value in AT_TO_HA_STATE.items()}
