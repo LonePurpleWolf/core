@@ -91,7 +91,7 @@ class AirtouchAC(ClimateEntity, CoordinatorEntity):
 
     @callback
     def _handle_coordinator_update(self):
-        self._unit = self._airtouch.GetAcs[self._ac_number]
+        self._unit = self._airtouch.GetAcs()[self._ac_number]
         return super()._handle_coordinator_update()
 
     @property
