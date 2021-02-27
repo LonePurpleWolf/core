@@ -15,7 +15,6 @@ from homeassistant.components.climate.const import (
     HVAC_MODE_AUTO,
     HVAC_MODE_FAN_ONLY,
     HVAC_MODE_HEAT,
-    HVAC_MODE_HEAT_COOL,
     HVAC_MODE_OFF,
     SUPPORT_FAN_MODE,
     SUPPORT_TARGET_TEMPERATURE,
@@ -141,8 +140,8 @@ class AirtouchAC(ClimateEntity, CoordinatorEntity):
     @property
     def hvac_mode(self):
         """Return hvac target hvac state."""
-        is_on = self._unit.PowerState == "On"
-        if not is_on:
+        is_off = self._unit.PowerState == "Off"
+        if is_off:
             return HVAC_MODE_OFF
 
         return AT_TO_HA_STATE[self._airtouch.acs[self._ac_number].AcMode]
@@ -262,16 +261,17 @@ class AirtouchGroup(ClimateEntity, CoordinatorEntity):
     @property
     def hvac_mode(self):
         """Return hvac target hvac state."""
-        is_on = self._unit.PowerState == "On"
-        if not is_on:
+        # there are other power states that arent 'on' but still count as on (eg. 'Turbo')
+        is_off = self._unit.PowerState == "Off"
+        if is_off:
             return HVAC_MODE_OFF
 
-        return HVAC_MODE_HEAT_COOL
+        return HVAC_MODE_FAN_ONLY
 
     @property
     def hvac_modes(self):
         """Return the list of available operation modes."""
-        return [HVAC_MODE_OFF, HVAC_MODE_HEAT_COOL]
+        return [HVAC_MODE_OFF, HVAC_MODE_FAN_ONLY]
 
     async def async_set_hvac_mode(self, hvac_mode):
         """Set new operation mode."""
