@@ -12,6 +12,7 @@ from homeassistant.components.climate.const import (
     FAN_MEDIUM,
     HVAC_MODE_COOL,
     HVAC_MODE_DRY,
+    HVAC_MODE_AUTO,
     HVAC_MODE_FAN_ONLY,
     HVAC_MODE_HEAT,
     HVAC_MODE_HEAT_COOL,
@@ -22,14 +23,15 @@ from homeassistant.components.climate.const import (
 from homeassistant.const import ATTR_TEMPERATURE, TEMP_CELSIUS
 from homeassistant.core import callback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from .const import DOMAIN
 
 SUPPORT_FLAGS = SUPPORT_TARGET_TEMPERATURE | SUPPORT_FAN_MODE
 AT_TO_HA_STATE = {
     "Heat": HVAC_MODE_HEAT,
     "Cool": HVAC_MODE_COOL,
-    "AutoHeat": HVAC_MODE_HEAT_COOL,
-    "AutoCool": HVAC_MODE_HEAT_COOL,
-    "Auto": HVAC_MODE_HEAT_COOL,
+    "AutoHeat": HVAC_MODE_AUTO,
+    "AutoCool": HVAC_MODE_AUTO,
+    "Auto": HVAC_MODE_AUTO,
     "Dry": HVAC_MODE_DRY,
     "Fan": HVAC_MODE_FAN_ONLY,
     "Off": HVAC_MODE_OFF,
@@ -52,28 +54,24 @@ HA_FAN_SPEED_TO_AT = {value: key for key, value in AT_TO_HA_FAN_SPEED.items()}
 _LOGGER = logging.getLogger(__name__)
 
 
-def _build_entity(coordinator, group_number, info, airtouch):
+def _build_entity(coordinator, group_number, info):
     _LOGGER.debug("Found device %s", group_number)
-    return AirtouchGroup(coordinator, group_number, info, airtouch)
+    return AirtouchGroup(coordinator, group_number, info)
 
 
-def _build_entity_ac(coordinator, ac_number, info, airtouch):
+def _build_entity_ac(coordinator, ac_number, info):
     _LOGGER.debug("Found ac %s", ac_number)
-    return AirtouchAC(coordinator, ac_number, info, airtouch)
+    return AirtouchAC(coordinator, ac_number, info)
 
 
 async def async_setup_entry(hass, config_entry, async_add_devices):
     """Set up the Airtouch 4."""
-    info = hass.data["airtouch4"][config_entry.entry_id]["info"]
-    coordinator = hass.data["airtouch4"][config_entry.entry_id]["coordinator"]
-
+    coordinator = hass.data[DOMAIN][config_entry.entry_id]["coordinator"]
+    info = coordinator.data
     all_devices = [
-        _build_entity(coordinator, group["GroupNumber"], info, coordinator.airtouch)
+        _build_entity(coordinator, group["GroupNumber"], info)
         for group in info["groups"]
-    ] + [
-        _build_entity_ac(coordinator, ac["AcNumber"], info, coordinator.airtouch)
-        for ac in info["acs"]
-    ]
+    ] + [_build_entity_ac(coordinator, ac["AcNumber"], info) for ac in info["acs"]]
 
     async_add_devices(all_devices)
 
@@ -81,11 +79,11 @@ async def async_setup_entry(hass, config_entry, async_add_devices):
 class AirtouchAC(ClimateEntity, CoordinatorEntity):
     """Representation of an AirTouch 4 ac."""
 
-    def __init__(self, coordinator, ac_number, info, airtouch):
+    def __init__(self, coordinator, ac_number, info):
         """Initialize the climate device."""
         super().__init__(coordinator)
         self._ac_number = ac_number
-        self._airtouch = airtouch
+        self._airtouch = coordinator.airtouch
         self._info = info
         self._unit = self._airtouch.GetAcs()[self._ac_number]
 
@@ -98,7 +96,7 @@ class AirtouchAC(ClimateEntity, CoordinatorEntity):
     def device_info(self):
         """Return device info for this device."""
         return {
-            "identifiers": {("airtouch4", "AC" + str(self._ac_number))},
+            "identifiers": {(DOMAIN, self.unique_id)},
             "name": self.name,
             "manufacturer": "Airtouch",
             "model": "Airtouch 4",
@@ -198,13 +196,13 @@ class AirtouchAC(ClimateEntity, CoordinatorEntity):
 class AirtouchGroup(ClimateEntity, CoordinatorEntity):
     """Representation of an AirTouch 4 group."""
 
-    def __init__(self, coordinator, group_number, info, airtouch):
+    def __init__(self, coordinator, group_number, info):
         """Initialize the climate device."""
         super().__init__(coordinator)
         self._group_number = group_number
-        self._airtouch = airtouch
+        self._airtouch = coordinator.airtouch
         self._info = info
-        self._unit = airtouch.GetGroupByGroupNumber(self._group_number)
+        self._unit = self._airtouch.GetGroupByGroupNumber(self._group_number)
 
     @callback
     def _handle_coordinator_update(self):
@@ -215,7 +213,7 @@ class AirtouchGroup(ClimateEntity, CoordinatorEntity):
     def device_info(self):
         """Return device info for this device."""
         return {
-            "identifiers": {("airtouch4", self._group_number)},
+            "identifiers": {(DOMAIN, self.unique_id)},
             "name": self.name,
             "manufacturer": "Airtouch",
             "model": "Airtouch 4",
@@ -306,12 +304,10 @@ class AirtouchGroup(ClimateEntity, CoordinatorEntity):
     async def async_set_temperature(self, **kwargs):
         """Set new target temperatures."""
         temp = kwargs.get(ATTR_TEMPERATURE)
-        if temp is not None:
-            _LOGGER.debug("Setting temp of %s to %s", self._group_number, str(temp))
-            self._unit = self._airtouch.SetGroupToTemperature(
-                self._group_number, int(temp)
-            )
-            self.async_write_ha_state()
+
+        _LOGGER.debug("Setting temp of %s to %s", self._group_number, str(temp))
+        self._unit = self._airtouch.SetGroupToTemperature(self._group_number, int(temp))
+        self.async_write_ha_state()
 
     async def async_set_fan_mode(self, fan_mode):
         """Set new fan mode."""

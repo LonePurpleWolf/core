@@ -36,24 +36,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     coordinator = AirtouchDataUpdateCoordinator(hass, airtouch)
     await coordinator.async_refresh()
     hass.data[DOMAIN][entry.entry_id] = {
-        "info": {
-            "acs": [
-                {"AcNumber": ac.AcNumber, "IsOn": ac.IsOn} for ac in airtouch.GetAcs()
-            ],
-            "groups": [
-                {
-                    "GroupNumber": group.GroupNumber,
-                    "GroupName": group.GroupName,
-                    "IsOn": group.IsOn,
-                }
-                for group in airtouch.GetGroups()
-            ],
-        },
         "coordinator": coordinator,
     }
-    hass.async_create_task(
-        hass.config_entries.async_forward_entry_setup(entry, "climate")
-    )
+
+    for component in PLATFORMS:
+        hass.async_create_task(
+            hass.config_entries.async_forward_entry_setup(entry, component)
+        )
 
     return True
 
