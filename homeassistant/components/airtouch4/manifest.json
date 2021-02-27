@@ -6,10 +6,6 @@
   "requirements": [
     "airtouch4pyapi==0.0.19"
   ],
-  "ssdp": [],
-  "zeroconf": [],
-  "homekit": {},
-  "dependencies": [],
   "codeowners": [
     "@LonePurpleWolf"
   ]

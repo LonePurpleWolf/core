@@ -1,6 +1,5 @@
 {
   "config": {
-
     "error": {
       "cannot_connect": "[%key:common::config_flow::error::cannot_connect%]",
       "no_units": "Could not find any AirTouch 4 Groups."
